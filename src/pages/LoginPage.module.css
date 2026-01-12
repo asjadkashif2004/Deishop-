@@ -1,0 +1,248 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+/* Input field */
+.field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 14px;
+    border-radius: 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.85);
+
+    transition:
+        border-color 200ms ease,
+        background 200ms ease,
+        box-shadow 200ms ease;
+}
+
+.field svg {
+    opacity: 0.75;
+}
+
+.field input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: rgba(255, 255, 255, 0.96);
+    font-size: 14px;
+}
+
+.field input::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.field:focus-within {
+    border-color: rgba(59, 130, 246, 0.55);
+    background: rgba(255, 255, 255, 0.10);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.20);
+}
+
+/* Submit button */
+.submit {
+    position: relative;
+    overflow: hidden;
+
+    margin-top: 6px;
+    padding: 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border-radius: 18px;
+    border: 1px solid rgba(16, 185, 129, 0.38);
+
+    background:
+        linear-gradient(135deg,
+            rgba(16, 185, 129, 0.32),
+            rgba(59, 130, 246, 0.26));
+
+    color: rgba(255, 255, 255, 0.98);
+    font-weight: 900;
+    cursor: pointer;
+
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+
+    transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.submit:hover {
+    transform: translateY(-1px);
+    border-color: rgba(16, 185, 129, 0.55);
+    box-shadow: 0 30px 110px rgba(0, 0, 0, 0.70);
+}
+
+.submit:active {
+    transform: scale(0.98);
+}
+
+/* Button shine animation */
+.shine {
+    position: absolute;
+    inset: -40%;
+    transform: rotate(18deg);
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.25),
+            transparent);
+    animation: shine 2.8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-60%) rotate(18deg);
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 0.35;
+    }
+
+    50% {
+        transform: translateX(60%) rotate(18deg);
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Footer text */
+.text {
+    margin-top: 12px;
+    font-size: 14px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.70);
+}
+
+.text a {
+    color: rgba(59, 130, 246, 0.95);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.text a:hover {
+    text-decoration: underline;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .shine {
+        animation: none;
+    }
+}
+
+/* Back to home */
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 800;
+    text-decoration: none;
+    width: fit-content;
+    transition: transform 160ms ease, color 160ms ease;
+}
+
+.back:hover {
+    transform: translateX(-2px);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Social buttons */
+.social {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.socialBtn,
+.socialBtnAlt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px;
+    border-radius: 16px;
+
+    font-weight: 850;
+    cursor: pointer;
+
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.95);
+
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+
+    transition:
+        transform 160ms ease,
+        background 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.socialBtnAlt {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.socialBtn:hover,
+.socialBtnAlt:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.60);
+}
+
+.socialBtn:active,
+.socialBtnAlt:active {
+    transform: scale(0.98);
+}
+
+/* Divider */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 12px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.divider span {
+    white-space: nowrap;
+}
+
+/* Focus accessibility */
+.back:focus-visible,
+.socialBtn:focus-visible,
+.socialBtnAlt:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.65);
+    outline-offset: 3px;
+}
