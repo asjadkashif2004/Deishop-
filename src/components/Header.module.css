@@ -1,0 +1,352 @@
+/* ================= SIZE TOKENS ================= */
+:root {
+    --btn-h: 40px;
+    --btn-px: 12px;
+    --btn-radius: 14px;
+    --btn-font: 13px;
+}
+
+/* ================= HEADER ================= */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    background: linear-gradient(135deg,
+            rgba(11, 18, 32, 0.92),
+            rgba(15, 23, 42, 0.84),
+            rgba(8, 12, 24, 0.94));
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+/* ================= LAYOUT ================= */
+.inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 18px;
+
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+}
+
+/* ================= BRAND ================= */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.brandMark {
+    width: 36px;
+    height: 36px;
+    border-radius: 14px;
+
+    background: radial-gradient(circle at 30% 30%, #34d399, #60a5fa 70%, #0b1220);
+    box-shadow:
+        0 14px 40px rgba(52, 211, 153, 0.22),
+        0 14px 40px rgba(96, 165, 250, 0.20);
+}
+
+.brandText {
+    font-weight: 900;
+    letter-spacing: 0.3px;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.98);
+}
+
+/* ================= NAV ================= */
+.nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.navLink {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 12px;
+    border-radius: 14px;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.88);
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    transition:
+        transform 200ms ease,
+        background 200ms ease,
+        border 200ms ease,
+        box-shadow 200ms ease,
+        color 200ms ease;
+}
+
+.navLink:hover {
+    transform: translateY(-1px);
+    color: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
+}
+
+.active {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(52, 211, 153, 0.22);
+}
+
+.underline {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 6px;
+    height: 2px;
+    border-radius: 999px;
+
+    background: linear-gradient(90deg,
+            transparent,
+            #34d399,
+            #60a5fa,
+            transparent);
+
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.navLink:hover .underline,
+.active .underline {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ================= ACTIONS ================= */
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ================= SEARCH ================= */
+.searchWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    width: clamp(220px, 30vw, 440px);
+    min-width: 200px;
+
+    height: var(--btn-h);
+    border-radius: 16px;
+
+    background: rgba(2, 6, 23, 0.70);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    box-shadow:
+        0 18px 45px rgba(0, 0, 0, 0.40),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    transition:
+        transform 200ms ease,
+        border 200ms ease,
+        box-shadow 200ms ease;
+}
+
+.searchWrap:focus-within {
+    transform: translateY(-1px);
+    border-color: rgba(52, 211, 153, 0.35);
+}
+
+.searchIcon {
+    margin-left: 12px;
+    color: rgba(255, 255, 255, 0.70);
+}
+
+.search {
+    flex: 1;
+    padding: 0 40px 0 10px;
+    background: transparent;
+    border: none;
+    outline: none;
+
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.96);
+}
+
+.search::placeholder {
+    color: rgba(255, 255, 255, 0.50);
+}
+
+.clearBtn {
+    position: absolute;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.90);
+
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.clearBtn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ================= BUTTONS ================= */
+.iconBtn,
+.iconBtnAlt,
+.cartBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    height: var(--btn-h);
+    padding: 0 var(--btn-px);
+    border-radius: var(--btn-radius);
+
+    font-size: var(--btn-font);
+    font-weight: 700;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    color: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.06);
+
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
+
+    transition:
+        transform 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        border 180ms ease;
+}
+
+.iconBtn:hover,
+.iconBtnAlt:hover,
+.cartBtn:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
+}
+
+.iconBtnAlt {
+    background: linear-gradient(135deg,
+            rgba(52, 211, 153, 0.22),
+            rgba(96, 165, 250, 0.18));
+    border-color: rgba(52, 211, 153, 0.28);
+    font-weight: 800;
+}
+
+.cartBtn {
+    position: relative;
+    font-weight: 800;
+}
+
+.badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+
+    display: grid;
+    place-items: center;
+
+    font-size: 11px;
+    font-weight: 900;
+    border-radius: 999px;
+
+    background: linear-gradient(135deg, #34d399, #60a5fa);
+    color: #07101f;
+
+    box-shadow: 0 12px 30px rgba(52, 211, 153, 0.25);
+}
+
+.iconLabel {
+    white-space: nowrap;
+}
+
+/* ================= GLOW LINE ================= */
+.glowLine {
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(52, 211, 153, 0.90),
+            rgba(96, 165, 250, 0.85),
+            transparent);
+}
+
+/* ================= MOBILE ================= */
+.mobileToggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.96);
+    cursor: pointer;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1180px) {
+    :root {
+        --btn-h: 38px;
+        --btn-px: 10px;
+        --btn-font: 12.5px;
+    }
+}
+
+@media (max-width: 1020px) {
+    :root {
+        --btn-h: 36px;
+        --btn-px: 9px;
+        --btn-radius: 12px;
+        --btn-font: 12px;
+    }
+
+    .iconLabel {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .nav {
+        display: none;
+    }
+
+    .searchWrap {
+        width: 260px;
+    }
+
+    .mobileToggle {
+        display: grid;
+        place-items: center;
+    }
+}
+
+@media (max-width: 560px) {
+    .searchWrap {
+        display: none;
+    }
+}

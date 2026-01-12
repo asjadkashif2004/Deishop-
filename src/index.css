@@ -1,0 +1,17 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    color-scheme: dark;
+}
+
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at 20% 10%, rgba(52, 211, 153, 0.16), transparent 38%),
+        radial-gradient(circle at 80% 0%, rgba(96, 165, 250, 0.14), transparent 42%),
+        #070b16;
+    color: rgba(255, 255, 255, 0.92);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
