@@ -7,8 +7,9 @@ export default function HomePage() {
         <div>
             <Header />
 
-            <CategoriesSection />
             <HeroSection />
+            <CategoriesSection />
+
         </div>
     );
 }
