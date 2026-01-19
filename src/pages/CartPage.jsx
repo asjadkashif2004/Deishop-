@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom"; // ✅ add this
+import { Link, useNavigate } from "react-router-dom";
 import { cartApi, productsApi } from "../services/api";
+import cartLogo from "../assets/cart.png";
 
 /* ---------------- Helpers ---------------- */
 
@@ -34,7 +35,7 @@ function getVariantId(item) {
 }
 
 function getCartItemId(item) {
-    return item?.id ?? getVariantId(item) ?? crypto.randomUUID?.() ?? String(Date.now());
+    return item?.id ?? getVariantId(item) ?? String(Math.random());
 }
 
 function getQty(item) {
@@ -53,7 +54,6 @@ function getTitleFromItem(item) {
 }
 
 function getPriceFromItem(item) {
-    // Try nested variant/product fields if backend returns expanded data
     return (
         item?.product_variant?.price ??
         item?.variant?.price ??
@@ -75,7 +75,6 @@ function getImgFromItem(item) {
 }
 
 function normalizeCart(res) {
-    // Cart might be { items: [...] } or { data: { items: [...] } } etc.
     if (!res) return { items: [] };
     if (Array.isArray(res?.items)) return res;
     if (Array.isArray(res?.data?.items)) return res.data;
@@ -83,31 +82,20 @@ function normalizeCart(res) {
     return { items: [] };
 }
 
-/* ---------------- UI bits ---------------- */
+/* ---------------- Small UI ---------------- */
 
-function Pill({ children, onClick, disabled }) {
-    return (
-        <button
-            onClick={onClick}
-            disabled={disabled}
-            className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10 disabled:opacity-50"
-        >
-            {children}
-        </button>
-    );
-}
+function Button({ children, onClick, disabled, variant = "ghost", className = "", type = "button" }) {
+    const base =
+        "inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2 text-sm transition disabled:opacity-50 disabled:cursor-not-allowed";
+    const styles =
+        variant === "primary"
+            ? "bg-teal-400 text-[#070B16] hover:bg-teal-300"
+            : variant === "danger"
+                ? "border border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/15"
+                : "border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10";
 
-function Chip({ active, children, onClick }) {
     return (
-        <button
-            onClick={onClick}
-            className={[
-                "inline-flex items-center rounded-2xl border px-4 py-2 text-sm transition",
-                active
-                    ? "border-teal-400/40 bg-teal-400/10 text-teal-100"
-                    : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10",
-            ].join(" ")}
-        >
+        <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${styles} ${className}`}>
             {children}
         </button>
     );
@@ -120,22 +108,23 @@ function SkeletonLine({ w = "w-full" }) {
 /* ---------------- Page ---------------- */
 
 export default function Cart() {
+    const navigate = useNavigate();
+
     const [cart, setCart] = useState({ items: [] });
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState("");
     const [busyItemId, setBusyItemId] = useState(null);
 
     const [coupon, setCoupon] = useState("");
     const [couponBusy, setCouponBusy] = useState(false);
 
-    // Optional checkout inputs (keeps things working without building full address UI)
     const [addressId, setAddressId] = useState("1");
     const [paymentMethod, setPaymentMethod] = useState("cod");
     const [checkoutBusy, setCheckoutBusy] = useState(false);
 
-    // If your cart response doesn’t include product details, we resolve by variantId
     const [lookupByVariantId, setLookupByVariantId] = useState({});
+
+    const items = cart?.items || [];
 
     async function loadCart() {
         setLoading(true);
@@ -145,7 +134,6 @@ export default function Cart() {
             const normalized = normalizeCart(res);
             setCart(normalized);
 
-            // If items lack title/image/price, do a products lookup once
             const needsLookup = (normalized.items || []).some((it) => {
                 const hasTitle = Boolean(getTitleFromItem(it));
                 const hasImg = Boolean(getImgFromItem(it));
@@ -163,16 +151,12 @@ export default function Cart() {
                         const title = p?.name || p?.title || "Product";
                         const basePrice = p?.price ?? null;
                         for (const v of p?.variants || []) {
-                            map[String(v.id)] = {
-                                title,
-                                img,
-                                price: v?.price ?? basePrice,
-                            };
+                            map[String(v.id)] = { title, img, price: v?.price ?? basePrice };
                         }
                     }
                     setLookupByVariantId(map);
                 } catch {
-                    // ignore; fallback mode still works
+                    // ignore
                 }
             }
         } catch (e) {
@@ -193,27 +177,24 @@ export default function Cart() {
         const key = variantId != null ? String(variantId) : null;
 
         const title = getTitleFromItem(item) || (key ? lookupByVariantId[key]?.title : "") || "Item";
-        const img = getImgFromItem(item) || (key ? lookupByVariantId[key]?.img : "") || "https://via.placeholder.com/800x800?text=Item";
+        const img =
+            getImgFromItem(item) ||
+            (key ? lookupByVariantId[key]?.img : "") ||
+            "https://via.placeholder.com/800x800?text=Item";
         const price = getPriceFromItem(item) ?? (key ? lookupByVariantId[key]?.price : null);
 
         return { title, img, price, variantId };
     }
 
-    const items = cart?.items || [];
-
     const totals = useMemo(() => {
         let subtotal = 0;
         let qty = 0;
-
         for (const it of items) {
             const { price } = getResolvedItem(it);
             const q = getQty(it);
             qty += q;
             if (price != null) subtotal += Number(price) * q;
         }
-
-        // if price looks cents-like, keep cents-like behavior consistent
-        // (money() already applies heuristic)
         return { qty, subtotal };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, lookupByVariantId]);
@@ -223,6 +204,7 @@ export default function Cart() {
         setBusyItemId(id);
         setError("");
         try {
+            if (!item?.id) throw new Error("Cart item id missing — cannot update quantity.");
             await cartApi.updateQuantity(item.id, nextQty);
             await loadCart();
         } catch (e) {
@@ -237,6 +219,7 @@ export default function Cart() {
         setBusyItemId(id);
         setError("");
         try {
+            if (!item?.id) throw new Error("Cart item id missing — cannot remove item.");
             await cartApi.removeCartItem(item.id);
             await loadCart();
         } catch (e) {
@@ -251,6 +234,7 @@ export default function Cart() {
         setCouponBusy(true);
         setError("");
         try {
+            if (typeof cartApi.applyCoupon !== "function") throw new Error("Coupon API not available.");
             await cartApi.applyCoupon(coupon.trim());
             await loadCart();
         } catch (e) {
@@ -260,12 +244,42 @@ export default function Cart() {
         }
     }
 
+    // ✅ FIXED: clear cart robustly (no more clearCart() missing crash)
     async function clearCart() {
         setError("");
         setCheckoutBusy(true);
+
         try {
-            await cartApi.clearCart();
-            await loadCart();
+            // 1) If backend actually has clearCart()
+            if (typeof cartApi.clearCart === "function") {
+                await cartApi.clearCart();
+                await loadCart();
+                return;
+            }
+
+            // 2) Some APIs use different names
+            if (typeof cartApi.clear === "function") {
+                await cartApi.clear();
+                await loadCart();
+                return;
+            }
+            if (typeof cartApi.empty === "function") {
+                await cartApi.empty();
+                await loadCart();
+                return;
+            }
+
+            // 3) Fallback: remove items one by one
+            if (typeof cartApi.removeCartItem === "function" && items.length > 0) {
+                await Promise.all(items.map((it) => cartApi.removeCartItem(it.id)));
+                await loadCart();
+                return;
+            }
+
+            // 4) Final fallback: local cart
+            localStorage.removeItem("cart");
+            localStorage.removeItem("cartItems");
+            setCart({ items: [] });
         } catch (e) {
             setError(e?.message || "Failed to clear cart.");
         } finally {
@@ -277,6 +291,7 @@ export default function Cart() {
         setCheckoutBusy(true);
         setError("");
         try {
+            if (typeof cartApi.checkout !== "function") throw new Error("Checkout API not available.");
             await cartApi.checkout({
                 address_id: Number(addressId || 1),
                 payment_method: paymentMethod,
@@ -291,11 +306,10 @@ export default function Cart() {
 
     return (
         <div className="min-h-screen bg-[#070B16] text-slate-100">
-            {/* Background glows */}
-            <div className="pointer-events-none fixed inset-0 opacity-70">
-                <div className="absolute -top-40 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-teal-500/10 blur-3xl" />
-                <div className="absolute top-40 right-[-120px] h-[380px] w-[380px] rounded-full bg-indigo-500/10 blur-3xl" />
-                <div className="absolute bottom-[-160px] left-[-160px] h-[420px] w-[420px] rounded-full bg-fuchsia-500/10 blur-3xl" />
+            {/* Subtle background */}
+            <div className="pointer-events-none fixed inset-0">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(20,184,166,0.10),transparent_40%),radial-gradient(circle_at_90%_20%,rgba(99,102,241,0.10),transparent_45%),radial-gradient(circle_at_50%_100%,rgba(255,255,255,0.04),transparent_40%)]" />
+                <div className="absolute inset-0 opacity-[0.05] [background-image:radial-gradient(#ffffff_1px,transparent_1px)] [background-size:22px_22px]" />
             </div>
 
             {/* Header */}
@@ -303,7 +317,16 @@ export default function Cart() {
                 <div className="mx-auto max-w-7xl px-4 py-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-teal-400/80 to-indigo-400/70 shadow-[0_0_0_1px_rgba(255,255,255,0.12)]" />
+                            {/* ✅ Back to home */}
+                            <Button onClick={() => navigate("/")} className="h-11 w-11 px-0" variant="ghost">
+                                ←
+                            </Button>
+
+                            {/* ✅ Cart logo */}
+                            <div className="h-11 w-11 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                                <img src={cartLogo} alt="Cart" className="h-full w-full object-contain p-2" />
+                            </div>
+
                             <div>
                                 <div className="text-lg font-semibold tracking-tight">Your Cart</div>
                                 <div className="text-xs text-slate-400">Review items and checkout</div>
@@ -311,15 +334,17 @@ export default function Cart() {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 justify-end">
-                            <Pill onClick={loadCart} disabled={loading}>
+                            <Button onClick={loadCart} disabled={loading}>
                                 ↻ Refresh
-                            </Pill>
-                            <Pill onClick={clearCart} disabled={checkoutBusy || loading || items.length === 0}>
+                            </Button>
+
+                            <Button onClick={clearCart} disabled={checkoutBusy || loading || items.length === 0} variant="danger">
                                 🗑 Clear
-                            </Pill>
-                            <Pill>
-                                Items: <span className="text-white">{totals.qty}</span>
-                            </Pill>
+                            </Button>
+
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
+                                Items: <span className="text-white font-semibold">{totals.qty}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -338,17 +363,23 @@ export default function Cart() {
             </header>
 
             {/* Content */}
-            <main className="mx-auto max-w-7xl px-4 py-10">
+            <main className="relative mx-auto max-w-7xl px-4 py-10">
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Items */}
                     <section className="lg:col-span-2">
-                        <div className="rounded-[28px] border border-white/10 bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+                        <div className="rounded-[28px] border border-white/10 bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.06)] overflow-hidden">
                             <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
                                 <div>
                                     <div className="text-lg font-semibold">Cart Items</div>
                                     <div className="text-xs text-slate-400">Adjust quantities or remove items</div>
                                 </div>
 
+                                <Link
+                                    to="/products"
+                                    className="text-sm text-teal-200 hover:text-teal-100 transition"
+                                >
+                                    Continue shopping →
+                                </Link>
                             </div>
 
                             <div className="p-6">
@@ -359,6 +390,14 @@ export default function Cart() {
                                         <div className="text-xl font-semibold">Your cart is empty</div>
                                         <div className="mt-2 text-sm text-slate-400">
                                             Add products to see them here.
+                                        </div>
+                                        <div className="mt-6 flex justify-center">
+                                            <Link
+                                                to="/products"
+                                                className="rounded-2xl bg-teal-400 px-5 py-3 text-sm font-semibold text-[#070B16] hover:bg-teal-300 transition"
+                                            >
+                                                Browse products
+                                            </Link>
                                         </div>
                                     </div>
                                 ) : (
@@ -373,7 +412,7 @@ export default function Cart() {
                                             return (
                                                 <div
                                                     key={id}
-                                                    className="flex flex-col gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 md:flex-row md:items-center"
+                                                    className="flex flex-col gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 md:flex-row md:items-center hover:bg-white/[0.06] transition"
                                                 >
                                                     <div className="flex items-center gap-4">
                                                         <div className="h-20 w-20 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
@@ -399,7 +438,7 @@ export default function Cart() {
                                                             <button
                                                                 disabled={busy || qty <= 1}
                                                                 onClick={() => changeQty(it, Math.max(1, qty - 1))}
-                                                                className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 disabled:opacity-50"
+                                                                className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 disabled:opacity-50 transition"
                                                             >
                                                                 −
                                                             </button>
@@ -418,22 +457,16 @@ export default function Cart() {
                                                             <button
                                                                 disabled={busy}
                                                                 onClick={() => changeQty(it, qty + 1)}
-                                                                className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 disabled:opacity-50"
+                                                                className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 disabled:opacity-50 transition"
                                                             >
                                                                 +
                                                             </button>
                                                         </div>
 
                                                         {/* actions */}
-                                                        <div className="flex items-center gap-2">
-                                                            <button
-                                                                onClick={() => removeItem(it)}
-                                                                disabled={busy}
-                                                                className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-200 hover:bg-rose-500/15 disabled:opacity-50"
-                                                            >
-                                                                {busy ? "Working…" : "Remove"}
-                                                            </button>
-                                                        </div>
+                                                        <Button onClick={() => removeItem(it)} disabled={busy} variant="danger">
+                                                            {busy ? "Working…" : "Remove"}
+                                                        </Button>
                                                     </div>
                                                 </div>
                                             );
@@ -479,17 +512,13 @@ export default function Cart() {
                                             placeholder="Enter code"
                                             className="w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-teal-400/40 focus:ring-2 focus:ring-teal-400/10"
                                         />
-                                        <button
-                                            onClick={applyCoupon}
-                                            disabled={couponBusy}
-                                            className="rounded-2xl bg-teal-400 px-4 py-2 text-sm font-semibold text-[#070B16] hover:bg-teal-300 disabled:opacity-60"
-                                        >
+                                        <Button onClick={applyCoupon} disabled={couponBusy} variant="primary" className="px-5">
                                             {couponBusy ? "..." : "Apply"}
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
 
-                                {/* Checkout inputs (simple) */}
+                                {/* Checkout inputs */}
                                 <div className="mt-6 grid gap-3">
                                     <div>
                                         <div className="text-sm font-semibold">Address ID</div>
@@ -506,7 +535,7 @@ export default function Cart() {
                                         <select
                                             value={paymentMethod}
                                             onChange={(e) => setPaymentMethod(e.target.value)}
-                                            className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-teal-400/40"
+                                            className="mt-2 w-full rounded-2xl border border-black/10 bg-blue/5 px-3 py-2 text-sm outline-none focus:border-teal-400/40"
                                         >
                                             <option value="cod">Cash on Delivery</option>
                                             <option value="card">Card</option>
@@ -514,30 +543,30 @@ export default function Cart() {
                                         </select>
                                     </div>
 
-                                    <button
+                                    <Button
                                         onClick={checkout}
                                         disabled={checkoutBusy || loading || items.length === 0}
-                                        className="mt-2 w-full rounded-2xl bg-teal-400 px-4 py-3 text-sm font-semibold text-[#070B16] hover:bg-teal-300 disabled:opacity-60"
+                                        variant="primary"
+                                        className="mt-2 w-full py-3"
                                     >
                                         {checkoutBusy ? "Processing…" : "Checkout"}
-                                    </button>
+                                    </Button>
 
-                                    <button
+                                    <Button
                                         onClick={clearCart}
                                         disabled={checkoutBusy || loading || items.length === 0}
-                                        className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 hover:bg-white/10 disabled:opacity-60"
+                                        className="w-full py-3"
                                     >
                                         Clear Cart
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
 
-                            {/* tiny info card */}
+                            {/* info card */}
                             <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 text-sm text-slate-300/80">
                                 <div className="font-semibold text-slate-100">Tip</div>
                                 <div className="mt-2">
-                                    If the backend is down, your app automatically falls back to fake data and
-                                    localStorage — cart still works offline.
+                                    If the backend is down, your app may fall back to localStorage — cart can still work offline.
                                 </div>
                             </div>
                         </div>

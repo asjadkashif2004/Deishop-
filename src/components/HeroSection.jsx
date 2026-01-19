@@ -33,6 +33,15 @@ const slides = [
         price: "$59",
         objectPos: "center",
     },
+    {
+        src: "https://media.product.which.co.uk/prod/images/original/155c687e5435-prods-of-the-decadeupdated-feb25.jpg",
+        alt: "Product slide 3",
+        tag: "Editor’s choice",
+        title: "Basic Package",
+        sub: "Sneakers • Lifestyle • Fresh collection",
+        price: "$70",
+        objectPos: "center",
+    }
 ];
 
 const slideVariants = {

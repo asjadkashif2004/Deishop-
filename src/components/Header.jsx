@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import logo from "../assets/logo.png";
+
 import {
     Search,
     ShoppingBag,
@@ -144,12 +146,20 @@ export default function Header({ cartCount = 0 }) {
                     <div className="flex h-[68px] items-center justify-between gap-3">
                         {/* Brand */}
                         <Link to="/" className="flex items-center gap-3" aria-label="DeiShop home">
-                            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-teal-400/80 to-indigo-400/70 shadow-[0_0_0_1px_rgba(255,255,255,0.12)]" />
+                            <div className="h-12 w-12 sm:h-14 sm:w-14 overflow-hidden rounded-2xl bg-white/5 border border-white/10 grid place-items-center">
+                                <img
+                                    src={logo}
+                                    alt="DeiShop logo"
+                                    className="h-full w-full object-contain scale-[1.6]"
+                                />
+                            </div>
+
                             <div className="leading-tight">
                                 <div className="text-[15px] font-semibold tracking-tight text-white">DeiShop</div>
                                 <div className="text-[11px] text-slate-400">Premium store</div>
                             </div>
                         </Link>
+
 
                         {/* Desktop nav */}
                         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
