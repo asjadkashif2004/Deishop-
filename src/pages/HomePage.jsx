@@ -1,18 +1,20 @@
+import { lazy, Suspense } from "react";
 import Header from "../components/Header";
-import HeroSection from "../components/HeroSection";
-import CategoriesSection from "../components/CategoriesSection";
-import Footer from "../components/Footer";
 
+const HeroSection = lazy(() => import("../components/HeroSection"));
+const CategoriesSection = lazy(() => import("../components/CategoriesSection"));
+const Footer = lazy(() => import("../components/Footer"));
 
 export default function HomePage() {
-    return (
-        <div>
-            <Header />
+  return (
+    <>
+      <Header />
 
-            <HeroSection />
-            <CategoriesSection />
-            <Footer />
-
-        </div>
-    );
+      <Suspense fallback={<div className="text-center p-6">Loading...</div>}>
+        <HeroSection />
+        <CategoriesSection />
+        <Footer />
+      </Suspense>
+    </>
+  );
 }
