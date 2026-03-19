@@ -54,6 +54,10 @@ Deishop/
 
 ---
 
+## Live Demo
+
+url: https://deishop.vercel.app/
+
 ## ⚙️ Installation & Setup
 
 1. Clone the repository:
