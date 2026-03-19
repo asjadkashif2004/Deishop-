@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import AuthLayout from "../app/AuthLayout";
-// ❌ remove: import styles from "./RegisterPage.module.css";
+
 
 export default function RegisterPage() {
     const [name, setName] = useState("");
